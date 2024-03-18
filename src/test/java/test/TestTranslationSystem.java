@@ -23,14 +23,6 @@ public class TestTranslationSystem {
     int secondCardBalance;
 
     @BeforeEach
-    void setUp() {ChromeOptions options = new ChromeOptions();
-        options.addArguments("--start-maximized");
-    Map<String, Object> prefs = new HashMap<String, Object>();
-        prefs.put("credentials_enable_service", false);
-        prefs.put("password_manager_enabled", false);
-        options.setExperimentalOption("prefs", prefs);
-    Configuration.browserCapabilities = options;}
-
     void setup() {
         var loginPage = open("http://localhost:9999", LoginPage.class);
         var authInfo = getAuthInfo();
@@ -41,7 +33,15 @@ public class TestTranslationSystem {
         secondCardInfo = getSecondCardInfo();
         firstCardBalance = dashboardPage.getCardBalance(firstCardInfo);
         secondCardBalance = dashboardPage.getCardBalance(secondCardInfo);
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--start-maximized");
+        Map<String, Object> prefs = new HashMap<String, Object>();
+        prefs.put("credentials_enable_service", false);
+        prefs.put("password_manager_enabled", false);
+        options.setExperimentalOption("prefs", prefs);
+        Configuration.browserCapabilities = options;
     }
+
     @Test
     void shouldTransferFromFirstToSecond() {
         var amount = generateInvalidAmount(firstCardBalance);
@@ -51,9 +51,10 @@ public class TestTranslationSystem {
         dashboardPage = transferPage.makeValidTransfer(String.valueOf(amount), firstCardInfo);
         var actualBalanceFirstCard = dashboardPage.getCardBalance(firstCardInfo);
         var actualBalanceSecondCard = dashboardPage.getCardBalance(secondCardInfo);
-        assertEquals(expectedBalanceFirstCard,actualBalanceFirstCard);
+        assertEquals(expectedBalanceFirstCard, actualBalanceFirstCard);
         assertEquals(expectedBalanceSecondCard, actualBalanceSecondCard);
     }
+
     @Test
     void shouldGetErrorMessageIfAmountMoreBalance() {
         var amount = generateInvalidAmount(secondCardBalance);
@@ -62,7 +63,7 @@ public class TestTranslationSystem {
         transferPage.findErrorMessage("Выполнена попытка перевода суммы, превышающей остаток на карте списания");
         var actualBalanceFirstCard = dashboardPage.getCardBalance(firstCardInfo);
         var actualBalanceSecondCard = dashboardPage.getCardBalance(secondCardInfo);
-        assertEquals(firstCardBalance,actualBalanceFirstCard);
+        assertEquals(firstCardBalance, actualBalanceFirstCard);
         assertEquals(secondCardBalance, actualBalanceSecondCard);
     }
 }
